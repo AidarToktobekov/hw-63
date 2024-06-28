@@ -7,9 +7,34 @@ import Add from './containers/Add/Add'
 import Contacts from './containers/Contacts/Contacts'
 import About from './containers/About/About'
 import { useEffect, useState } from 'react'
+import { Post } from './types'
+import PostById from './containers/Post/PostById'
 
 const App=()=> {
 
+  const [loading, setLoading] = useState(false)
+  const [posts, setPosts] = useState<Post[]>([]);
+  
+  const getPosts = async () => {
+      
+    setLoading(true);
+
+    try {
+      const response = await axiosApi.get('/posts.json');
+      const postCopy = [];
+      for (let key in response.data) {
+        const onePost = {id: key, title: response.data[key].title,date: response.data[key].date,body: response.data[key].body,};
+        postCopy.push(onePost);         
+        setPosts(postCopy);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(()=>{
+    getPosts(); 
+  },[])
 
   return (
     <>
