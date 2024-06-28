@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import axiosApi from "../../axios-api";
 import GetPost from "../../components/Posts/Post.tsx";
 import { Post } from "../../types.ts";
@@ -6,8 +6,20 @@ import EditPost from "../../components/Posts/EditPost.tsx";
 
 const Home=()=>{
     
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const [posts, setPosts] = useState<Post[]>([]);
+
+    let preloader = null;
+
+  if (loading === true) {
+    preloader = (
+      <>
+          <div id="preloader">
+            <div className="loader"></div>
+          </div>
+      </>
+    )
+  }
 
     const getPosts = async () => {
         
@@ -28,7 +40,7 @@ const Home=()=>{
     };
     useEffect(()=>{
         getPosts(); 
-    },[])
+    },[]);
     
     let callPosts = (
         <>
@@ -44,9 +56,9 @@ const Home=()=>{
         const messageDate = new Date(post.date);
         const lengthDate=(date:number)=>{
             if (String(date).length === 1) {
-                return('0' + date)
+                return('0' + date);
             }else{
-                return(date)
+                return(date);
             }
         }
         
@@ -54,7 +66,7 @@ const Home=()=>{
             setLoading(true);
             
             try {
-                const responseDelete = await axiosApi.delete('/posts/' + key + '.json');
+                await axiosApi.delete('/posts/' + key + '.json');
                 const response = await axiosApi.get('/posts.json');
                 const postCopy = [];
                 for (let key in response.data) {
@@ -63,7 +75,7 @@ const Home=()=>{
                 }
                 setPosts(postCopy);
             } finally {
-                setFullPost(<div></div>)
+                setFullPost(<div></div>);
                 setLoading(false);
             }
         }
@@ -80,16 +92,16 @@ const Home=()=>{
                     const onePost = {id: key, title: response.data[key].title,date: response.data[key].date,body: response.data[key].body,};
                     postCopy.push(onePost);         
                 }
-                setPosts(postCopy)
+                setPosts(postCopy);
         } finally {
-            setFullPost(<div></div>)
+            setFullPost(<div></div>);
             setLoading(false);
         }
         } 
         
         setFullPost(
             <>
-                    <EditPost func={editPost} key={key} id={key}></EditPost>
+                    <EditPost updateResponse={editPost} exit={()=>{setFullPost(<div></div>)}} key={key} id={key}></EditPost>
                 </>
             )
         }
@@ -105,7 +117,7 @@ const Home=()=>{
                     </div>
                     <button className="btn btn-danger m-2" onClick={()=>(deletePost(post.id))}>Delete</button>
                     <button className="btn btn-primary m-2" onClick={()=>(editPost(post.id ))}>Edit</button>
-                    <button className="btn btn-light m-2">Exit</button>
+                    <button className="btn btn-light m-2" onClick={()=>setFullPost(<div></div>)}>Exit</button>
                 </div>
             </>
         )
@@ -130,6 +142,7 @@ const Home=()=>{
     
     return(
         <>
+        {preloader}
             <div className="container mt-5 d-flex justify-content-center" style={{marginBottom: '100px'}}>
                 {callPosts}
                 {fullPost}  
@@ -138,4 +151,4 @@ const Home=()=>{
     )
 }
 
-export default Home
+export default Home;

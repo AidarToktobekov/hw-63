@@ -1,14 +1,31 @@
-import { ChangeEvent, Children, PropsWithChildren, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import axiosApi from "../../axios-api";
 
 interface Props{
     id: string;
-    func: ()=>void;
+    updateResponse: ()=>void;
+    exit: ()=>void;
 }
 
-const EditPost:React.FC<Props> = ({id, func})=>{
+const EditPost:React.FC<Props> = ({id, updateResponse, exit})=>{
+
+    const [loading, setLoading] = useState(false);
+
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
+
+    let preloader = null;
+
+    if (loading === true) {
+      preloader = (
+        <>
+            <div id="preloader">
+              <div className="loader"></div>
+            </div>
+        </>
+      )
+    }
+  
 
     const titleValue=(event: ChangeEvent<HTMLInputElement>)=>{
         setTitle(event.target.value);
@@ -19,11 +36,10 @@ const EditPost:React.FC<Props> = ({id, func})=>{
 
     const editResponsePost = async () => {
         if (title.trim() === '' || message.trim() === '' || title.trim() === null || message.trim() === null) {
-            console.log(title, message);
-            alert('Заполните поля ниже!')
+            alert('Заполните поля ниже!');
         }
         else{
-
+            setLoading(true);
             const post = {
                 title: title,
                 date: new Date(),
@@ -31,13 +47,11 @@ const EditPost:React.FC<Props> = ({id, func})=>{
             }
 
             try {
-                const responsePut = await axiosApi.put('/posts/' + id + '.json', post);
-                const response = await axiosApi.get('/posts.json');
-                console.log(response.data);
-                func()
+                await axiosApi.put('/posts/' + id + '.json', post);
+                updateResponse();
 
         } finally {
-            
+            setLoading(false);
         }     
         }
     };
@@ -45,6 +59,7 @@ const EditPost:React.FC<Props> = ({id, func})=>{
 
     return(
         <>
+        {preloader}
             <div className="bg-dark text-light rounded-3 p-3" style={{width: '35%'}}>
                 <h5 className="">Edit post</h5>
                     <div className="mb-3">
@@ -56,7 +71,7 @@ const EditPost:React.FC<Props> = ({id, func})=>{
                         <textarea className="form-control" onChange={messageValue} id="exampleFormControlTextarea1"></textarea>
                     </div>
                     <button className="btn btn-dark" type="submit" onClick={editResponsePost}>Add</button>
-                    <button className="btn btn-light m-2">Exit</button>
+                    <button className="btn btn-light m-2" onClick={exit}>Exit</button>
             </div>
         </>
     )

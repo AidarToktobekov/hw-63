@@ -1,44 +1,17 @@
-import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { NavLink, Route, Routes } from 'react-router-dom'
 import './App.css'
-import axiosApi from './axios-api'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import Home from './containers/Home/Home'
 import Add from './containers/Add/Add'
 import Contacts from './containers/Contacts/Contacts'
 import About from './containers/About/About'
-import { useEffect, useState } from 'react'
-import { Post } from './types'
-import PostById from './containers/Post/PostById'
 
 const App=()=> {
 
-  const [loading, setLoading] = useState(false)
-  const [posts, setPosts] = useState<Post[]>([]);
-  
-  const getPosts = async () => {
-      
-    setLoading(true);
-
-    try {
-      const response = await axiosApi.get('/posts.json');
-      const postCopy = [];
-      for (let key in response.data) {
-        const onePost = {id: key, title: response.data[key].title,date: response.data[key].date,body: response.data[key].body,};
-        postCopy.push(onePost);         
-        setPosts(postCopy);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(()=>{
-    getPosts(); 
-  },[])
-
   return (
     <>
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{position: 'sticky', zIndex: '3'}}>
       <div className="container-xxl d-flex gap-2">
         <span className="navbar-brand m-auto">My Blog</span>
         <div className="collapse navbar-collapse d-flex">
@@ -59,7 +32,6 @@ const App=()=> {
         </div>
       </div>
     </nav>
-
     <Routes>
       <Route path="/new-post" element={(
         <Add/>

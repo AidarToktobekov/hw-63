@@ -1,5 +1,6 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import axiosApi from "../../axios-api";
+import { useNavigate } from "react-router-dom";
 
 const Add=()=>{
 
@@ -7,6 +8,18 @@ const Add=()=>{
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
 
+    const navigate = useNavigate();
+    let preloader = null
+
+    if (loading === true) {
+      preloader = (
+        <>
+            <div id="preloader">
+              <div className="loader"></div>
+            </div>
+        </>
+      )
+    }
 
     const titleValue=(event: ChangeEvent<HTMLInputElement>)=>{
         setTitle(event.target.value)
@@ -31,16 +44,18 @@ const Add=()=>{
             }
 
             try {
-                const response = await axiosApi.post('/posts.json', post);
+                await axiosApi.post('/posts.json', post);
                 
         } finally {
               setLoading(false);
+              navigate('/')
         }     
         }
     };
 
     return(
         <>
+        {preloader}
             <div className="container">
                 <form onSubmit={addPost}>
                     <div className="mb-3">
